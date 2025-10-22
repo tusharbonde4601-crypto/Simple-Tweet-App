@@ -1,0 +1,240 @@
+{% extends "layout.html" %}
+{% block title %}All Tweets - Tweet-Bar{% endblock %}
+
+{% block content %}
+<style>
+    .page-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+    }
+
+    .page-subtitle {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+    }
+
+    .tweet-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .tweet-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        border-color: var(--accent-blue);
+    }
+
+    .tweet-image {
+        height: 200px;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .tweet-content {
+        padding: 1.5rem;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .user-avatar-small {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        margin-right: 0.75rem;
+    }
+
+    .username {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .tweet-text {
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    .tweet-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-tweet {
+        padding: 0.4rem 0.8rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border: none;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .btn-edit {
+        background: var(--accent-blue);
+        color: white;
+    }
+
+    .btn-edit:hover {
+        background: #2563eb;
+        transform: scale(1.05);
+        color: white;
+    }
+
+    .btn-delete {
+        background: var(--accent-red);
+        color: white;
+    }
+
+    .btn-delete:hover {
+        background: #dc2626;
+        transform: scale(1.05);
+        color: white;
+    }
+
+    .create-tweet-btn {
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 25px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .create-tweet-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+        color: white;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--bg-secondary);
+        border-radius: 16px;
+        border: 1px solid var(--border-color);
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+    }
+
+    .back-link:hover {
+        color: var(--accent-blue);
+        transform: translateX(-4px);
+    }
+</style>
+
+<div class="container">
+    <a href="{% url 'home' %}" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+        Back to Home
+    </a>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-list me-2" style="color: var(--accent-blue);"></i>
+            All Tweets
+        </h1>
+        <p class="page-subtitle">Discover what everyone is talking about</p>
+        <a href="{% url 'tweet_create' %}" class="create-tweet-btn">
+            <i class="fas fa-plus"></i>
+            Create New Tweet
+        </a>
+    </div>
+
+    <!-- Tweets Grid -->
+    <div class="row">
+        {% for tweet in tweets %}
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                <div class="tweet-card">
+                    {% if tweet.photo %}
+                        <img src="{{ tweet.photo.url }}" class="tweet-image" alt="Tweet image">
+                    {% endif %}
+                    
+                    <div class="tweet-content">
+                        <div class="user-info">
+                            <div class="user-avatar-small">
+                                {{ tweet.user.username|first|upper }}
+                            </div>
+                            <h6 class="username">{{ tweet.user.username }}</h6>
+                        </div>
+                        
+                        <p class="tweet-text">{{ tweet.content }}</p>
+                        
+                        {% if tweet.user == user %}
+                            <div class="tweet-actions">
+                                <a href="{% url 'tweet_edit' tweet.id %}" class="btn-tweet btn-edit">
+                                    <i class="fas fa-edit"></i>
+                                    Edit
+                                </a>
+                                <a href="{% url 'tweet_delete' tweet.id %}" class="btn-tweet btn-delete">
+                                    <i class="fas fa-trash"></i>
+                                    Delete
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-twitter"></i>
+                    </div>
+                    <h3 class="text-primary mb-3">No tweets yet!</h3>
+                    <p class="text-secondary mb-4">Be the first to share your thoughts with the world.</p>
+                    <a href="{% url 'tweet_create' %}" class="create-tweet-btn">
+                        <i class="fas fa-plus"></i>
+                        Create Your First Tweet
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

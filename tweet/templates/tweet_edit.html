@@ -1,0 +1,323 @@
+{% extends "layout.html" %}
+{% block title %}Edit Tweet - Tweet-Bar{% endblock %}
+
+{% block content %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: var(--bg-secondary);
+        border-radius: 20px;
+        padding: 2.5rem;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-title {
+        text-align: center;
+        margin-bottom: 2rem;
+        color: var(--text-primary);
+        font-weight: 700;
+        font-size: 2rem;
+    }
+
+    .form-subtitle {
+        text-align: center;
+        color: var(--text-secondary);
+        margin-bottom: 2.5rem;
+        font-size: 1.1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label-modern {
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control-modern {
+        background: var(--bg-primary);
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        color: var(--text-primary);
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .form-control-modern:focus {
+        outline: none;
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        background: var(--bg-secondary);
+    }
+
+    .textarea-modern {
+        min-height: 120px;
+        resize: vertical;
+        font-family: inherit;
+    }
+
+    .current-image {
+        margin-top: 1rem;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+    }
+
+    .current-image img {
+        width: 100%;
+        max-width: 300px;
+        height: auto;
+        display: block;
+    }
+
+    .file-input-container {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+
+    .file-input-modern {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+
+    .file-input-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        background: var(--bg-primary);
+        border: 2px dashed var(--border-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .file-input-label:hover {
+        border-color: var(--accent-blue);
+        color: var(--accent-blue);
+        background: rgba(59, 130, 246, 0.05);
+    }
+
+    .btn-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .submit-btn {
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+        color: white;
+        border: none;
+        padding: 0.875rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        flex: 1;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+    }
+
+    .cancel-btn {
+        background: var(--bg-tertiary);
+        color: var(--text-secondary);
+        border: 2px solid var(--border-color);
+        padding: 0.875rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        flex: 1;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .cancel-btn:hover {
+        background: var(--border-color);
+        color: var(--text-primary);
+        transform: translateY(-2px);
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+    }
+
+    .back-link:hover {
+        color: var(--accent-blue);
+        transform: translateX(-4px);
+    }
+
+    .character-count {
+        text-align: right;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .character-count.warning {
+        color: var(--accent-red);
+    }
+
+    .error-message {
+        color: var(--accent-red);
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+</style>
+
+<div class="container">
+    <a href="{% url 'home' %}" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+        Back to Home
+    </a>
+
+    <div class="form-container">
+        <h1 class="form-title">
+            <i class="fas fa-edit me-2" style="color: var(--accent-blue);"></i>
+            Edit Tweet
+        </h1>
+        <p class="form-subtitle">Update your thoughts</p>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="error-message mb-3">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="{{ form.content.id_for_label }}" class="form-label-modern">
+                    <i class="fas fa-comment me-2"></i>Tweet Content
+                </label>
+                <textarea 
+                    class="form-control-modern textarea-modern" 
+                    id="{{ form.content.id_for_label }}" 
+                    name="{{ form.content.name }}" 
+                    placeholder="Share your thoughts..." 
+                    required
+                    maxlength="280"
+                    oninput="updateCharacterCount(this)"
+                >{{ form.content.value|default_if_none:'' }}</textarea>
+                <div class="character-count" id="charCount">{{ form.content.value|length|default:0 }} / 280</div>
+                {% if form.content.errors %}
+                    <div class="error-message">{{ form.content.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label-modern">
+                    <i class="fas fa-image me-2"></i>Update Photo (Optional)
+                </label>
+                
+                {% if tweet.photo %}
+                    <div class="current-image">
+                        <img src="{{ tweet.photo.url }}" alt="Current tweet image">
+                    </div>
+                    <p class="text-secondary mt-2 mb-3">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Current image - upload a new one to replace it
+                    </p>
+                {% endif %}
+                
+                <div class="file-input-container">
+                    <input 
+                        class="file-input-modern" 
+                        type="file" 
+                        id="{{ form.photo.id_for_label }}" 
+                        name="{{ form.photo.name }}" 
+                        accept="image/*"
+                        onchange="updateFileName(this)"
+                    >
+                    <label for="{{ form.photo.id_for_label }}" class="file-input-label" id="fileLabel">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>Click to upload new image or drag and drop</span>
+                    </label>
+                </div>
+                {% if form.photo.errors %}
+                    <div class="error-message">{{ form.photo.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="btn-actions">
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-save"></i>
+                    Save Changes
+                </button>
+                <a href="{% url 'home' %}" class="cancel-btn">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function updateCharacterCount(textarea) {
+        const count = textarea.value.length;
+        const maxLength = 280;
+        const countElement = document.getElementById('charCount');
+        
+        countElement.textContent = `${count} / ${maxLength}`;
+        
+        if (count > maxLength * 0.9) {
+            countElement.classList.add('warning');
+        } else {
+            countElement.classList.remove('warning');
+        }
+    }
+
+    function updateFileName(input) {
+        const label = document.getElementById('fileLabel');
+        if (input.files && input.files[0]) {
+            const fileName = input.files[0].name;
+            label.innerHTML = `
+                <i class="fas fa-check-circle" style="color: var(--accent-green);"></i>
+                <span>${fileName}</span>
+            `;
+        }
+    }
+
+    // Initialize character count on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const textarea = document.querySelector('.textarea-modern');
+        if (textarea) {
+            updateCharacterCount(textarea);
+        }
+    });
+</script>
+{% endblock %}
